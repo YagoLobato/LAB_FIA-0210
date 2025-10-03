@@ -1,0 +1,83 @@
+MODULE main
+
+VAR
+  pos_a : {table_0, table_1, table_2, table_3, table_4, table_5, table_6, on_b, on_c};
+  pos_b : {table_0, table_1, table_2, table_3, table_4, table_5, table_6, on_a, on_c};
+  pos_c : {table_0, table_1, table_2, table_3, table_4, table_5, table_6, on_a, on_b};
+
+  move : {
+    none,
+    move_a_on_b, move_a_on_c,
+    move_b_on_a, move_b_on_c,
+    move_c_on_a, move_c_on_b,
+    move_a_table_0, move_a_table_1, move_a_table_2,
+    move_b_table_0, move_b_table_1, move_b_table_2,
+    move_c_table_0, move_c_table_1, move_c_table_2
+  };
+
+DEFINE
+  size_a := 1;
+  size_b := 1;
+  size_c := 2;
+
+  clear_a := (pos_b != on_a) & (pos_c != on_a);
+  clear_b := (pos_a != on_b) & (pos_c != on_b);
+  clear_c := (pos_a != on_c) & (pos_b != on_c);
+
+  stable_ab := size_a <= size_b;
+  stable_ac := size_a <= size_c;
+  stable_ba := size_b <= size_a;
+  stable_bc := size_b <= size_c;
+  stable_ca := size_c <= size_a;
+  stable_cb := size_c <= size_b;
+
+  goal := (pos_c = table_2) & (pos_a = on_c) & (pos_b = on_a);
+
+INIT
+  pos_a = table_1 &
+  pos_b = table_0 &
+  pos_c = table_2 &
+  move = none;
+
+ASSIGN
+  next(pos_a) :=
+    case
+      move = move_a_on_b & clear_a & clear_b & stable_ab : on_b;
+      move = move_a_on_c & clear_a & clear_c & stable_ac : on_c;
+      move = move_a_table_0 & clear_a : table_0;
+      move = move_a_table_1 & clear_a : table_1;
+      move = move_a_table_2 & clear_a : table_2;
+      TRUE : pos_a;
+    esac;
+
+  next(pos_b) :=
+    case
+      move = move_b_on_a & clear_b & clear_a & stable_ba : on_a;
+      move = move_b_on_c & clear_b & clear_c & stable_bc : on_c;
+      move = move_b_table_0 & clear_b : table_0;
+      move = move_b_table_1 & clear_b : table_1;
+      move = move_b_table_2 & clear_b : table_2;
+      TRUE : pos_b;
+    esac;
+
+  next(pos_c) :=
+    case
+      move = move_c_on_a & clear_c & clear_a & stable_ca : on_a;
+      move = move_c_on_b & clear_c & clear_b & stable_cb : on_b;
+      move = move_c_table_0 & clear_c : table_0;
+      move = move_c_table_1 & clear_c : table_1;
+      move = move_c_table_2 & clear_c : table_2;
+      TRUE : pos_c;
+    esac;
+
+  next(move) := {
+    none,
+    move_a_on_b, move_a_on_c,
+    move_b_on_a, move_b_on_c,
+    move_c_on_a, move_c_on_b,
+    move_a_table_0, move_a_table_1, move_a_table_2,
+    move_b_table_0, move_b_table_1, move_b_table_2,
+    move_c_table_0, move_c_table_1, move_c_table_2
+  };
+
+CTLSPEC EF goal;
