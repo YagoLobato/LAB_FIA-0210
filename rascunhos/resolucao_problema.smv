@@ -80,4 +80,4 @@ ASSIGN
     move_c_table_0, move_c_table_1, move_c_table_2
   };
 
-CTLSPEC EF goal;
+CTLSPEC !EF goal;
